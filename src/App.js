@@ -1,25 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback, useState } from "react";
 
-function App() {
+import api from "services/api";
+import { SymbolSearchBox, SearchAppBar, Profile } from "components";
+
+export default function App() {
+  const [profile, setProfile] = useState(null);
+
+  const handleSelect = useCallback((symbol) => {
+    api
+      .get(`/profile/${symbol}`)
+      .then((data) => {
+        if (!data || !Array.isArray(data) || !data.length) {
+          throw Error(
+            "No Data or Invalid data: " + JSON.stringify(data, 2, null)
+          );
+        }
+        setProfile(data[0]);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <SearchAppBar>
+        <SymbolSearchBox label="Search" onSelect={handleSelect} />
+      </SearchAppBar>
+      <Profile data={profile} />
+    </React.Fragment>
   );
 }
-
-export default App;
