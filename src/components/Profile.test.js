@@ -1,69 +1,56 @@
 import React from "react";
-import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { render, cleanup } from "@testing-library/react";
 
-import api from "services/api";
-import App from "App.js";
+import Profile from "components/Profile";
 
-jest.mock("services/api");
-
-describe("Component: App", () => {
+describe("Component: Profile", () => {
   afterEach(cleanup);
 
   it("check if component initialized", () => {
-    const { container, getByTestId } = render(<App />);
+    const { container, getByText } = render(<Profile data={mockData} />);
     const component = container.firstChild;
-    const inputComponent = getByTestId("search-box-input");
+    const changesComponent = getByText(
+      new RegExp(mockData.changes.toString(), "i")
+    );
 
     expect(component).toBeTruthy();
     expect(component).toBeInTheDocument();
-    expect(inputComponent).toBeTruthy();
+    expect(changesComponent).toBeTruthy();
+    expect(changesComponent).toBeInTheDocument();
   });
 
-  it("check company profile displayed if the suggestion item clicked", async () => {
-    const value = "AA";
-    const { getByTestId, getByText } = render(<App />);
-    const inputComponent = getByTestId("search-box-input");
+  it("check if 'changes' color is red when 'changes' is negative", async () => {
+    mockData.changes = -123456789.01;
+    const { getByText } = render(<Profile data={mockData} />);
+    const changesComponent = getByText("(-123456789.01)");
 
-    api.get.mockResolvedValueOnce(Promise.resolve(mockListData));
-    fireEvent.input(inputComponent, { target: { value } });
-    fireEvent.change(inputComponent, { target: { value } });
-    await waitFor(() => expect(api.get).toHaveBeenCalledTimes(1));
+    expect(changesComponent).toBeInTheDocument();
+    expect(changesComponent).toHaveStyle(`color: ${red}`);
+  });
 
-    const suggestionMenu = getByTestId("search-box-menu");
-    expect(suggestionMenu).toBeTruthy();
-    expect(suggestionMenu).toBeInTheDocument();
-    expect(suggestionMenu.childNodes.length).toBe(mockListData.length);
+  it("check if 'changes' color is green when 'changes' is positive", async () => {
+    mockData.changes = 123456789.01;
+    const { getByText } = render(<Profile data={mockData} />);
+    const changesComponent = getByText("(+123456789.01)");
 
-    api.get.mockResolvedValueOnce(Promise.resolve([mockProfileData]));
-    fireEvent.click(suggestionMenu.firstChild);
-    await waitFor(() => expect(api.get).toHaveBeenCalledTimes(2));
+    expect(changesComponent).toBeInTheDocument();
+    expect(changesComponent).toHaveStyle(`color: ${green}`);
+  });
 
-    expect(getByText(mockProfileData.companyName)).toBeInTheDocument();
-    expect(getByText(mockProfileData.description)).toBeInTheDocument();
-    expect(getByText(mockProfileData.ceo)).toBeInTheDocument();
-    expect(getByText(mockProfileData.industry)).toBeInTheDocument();
-    expect(getByText(mockProfileData.website)).toBeInTheDocument();
+  it("check if 'price' is formatted", async () => {
+    mockData.price = 99999999.01;
+    const { getByText } = render(<Profile data={mockData} />);
+    const priceComponent = getByText("$99,999,999.01");
+
+    expect(priceComponent).toBeInTheDocument();
   });
 });
 
-const mockListData = [
-  {
-    symbol: "SPY",
-    name: "SPDR S&P 500",
-    price: 366.77,
-    exchange: "NYSE Arca",
-  },
-  {
-    symbol: "CMCSA",
-    name: "Comcast Corp",
-    price: 51.26,
-    exchange: "Nasdaq Global Select",
-  },
-];
-
-const mockProfileData = {
+const red = "#dc004e";
+const green = "#4caf50";
+const mockData = {
   symbol: "AAPL",
-  price: 9999999.1,
+  price: 121.78,
   beta: 1.33758,
   volAvg: 128292167,
   mktCap: 2070479110000,

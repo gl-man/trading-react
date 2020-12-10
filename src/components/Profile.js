@@ -24,12 +24,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     background: "#fff",
   },
-  red: {
-    color: "#dc004e",
-  },
-  green: {
-    color: "#4caf50",
-  },
 }));
 
 const IntroText = ({ children }) => (
@@ -94,10 +88,12 @@ export default function Profile({ data }) {
             color="textPrimary"
             component="p"
           >
-            {new Intl.NumberFormat("en", {
-              style: "currency",
-              currency: data.currency,
-            }).format(data.price)}
+            <span>
+              {new Intl.NumberFormat("en", {
+                style: "currency",
+                currency: data.currency,
+              }).format(data.price)}
+            </span>
             &nbsp;&nbsp;
             <Typography component="span" variant="caption" color="textPrimary">
               {data.currency}
@@ -107,7 +103,7 @@ export default function Profile({ data }) {
               variant="h6"
               color="textSecondary"
               component="span"
-              className={isNegative ? classes.red : classes.green}
+              style={{ color: isNegative ? "#dc004e" : "#4caf50" }}
             >
               {`(${sign}${data.changes})`}
             </Typography>
@@ -117,15 +113,30 @@ export default function Profile({ data }) {
       <Box margin={3}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <IntroText>Sector: {data.sector}</IntroText>
-            <IntroText>Industry: {data.industry}</IntroText>
-            <IntroText>CEO: {data.ceo}</IntroText>
-            <IntroText>Employees: {data.fullTimeEmployees}</IntroText>
+            <IntroText>
+              <span>Sector: </span>
+              <span>{data.sector}</span>
+            </IntroText>
+            <IntroText>
+              <span>Industry: </span>
+              <span>{data.industry}</span>
+            </IntroText>
+            <IntroText>
+              <span>CEO: </span>
+              <span>{data.ceo}</span>
+            </IntroText>
+            <IntroText>
+              <span>Employees: </span>
+              <span>{data.fullTimeEmployees}</span>
+            </IntroText>
           </Grid>
           <Grid item xs={12} sm={6}>
             <AddressText>{data.address}</AddressText>
             <AddressText>
-              {data.city}, {data.state} {data.zip}
+              <span>{data.city}</span>
+              <span>,&nbsp;</span>
+              <span>{data.state}</span>
+              <span>{data.zip}</span>
             </AddressText>
             <AddressText>{data.country}</AddressText>
             <AddressText>+{data.phone}</AddressText>

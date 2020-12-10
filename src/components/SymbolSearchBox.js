@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Downshift from "downshift";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from '@material-ui/core/InputAdornment';
+import InputAdornment from "@material-ui/core/InputAdornment";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from "@material-ui/icons/Search";
 import { makeStyles } from "@material-ui/core/styles";
 
 import api from "services/api";
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Autocomplete = ({ onSelect, label }) => {
+const SymbolSearchBox = ({ onSelect, label }) => {
   const classes = useStyles();
   const [value, setValue] = React.useState("");
   const debouncedValue = useDebounce(value, 500);
@@ -54,8 +54,10 @@ const Autocomplete = ({ onSelect, label }) => {
         },
       })
       .then((data) => {
-        if(!data || !Array.isArray(data)) {
-          throw Error ("No Data or Invalid data: " + JSON.stringify(data, 2, null));
+        if (!data || !Array.isArray(data)) {
+          throw Error(
+            "No Data or Invalid data: " + JSON.stringify(data, 2, null)
+          );
         }
         setSymbols(data);
       })
@@ -81,6 +83,7 @@ const Autocomplete = ({ onSelect, label }) => {
       onChange={handleSelect}
       onInputValueChange={handleChange}
       itemToString={(item) => (item ? item.symbol : "")}
+      id="search-box"
     >
       {({
         getInputProps,
@@ -97,17 +100,25 @@ const Autocomplete = ({ onSelect, label }) => {
             variant="outlined"
             label={label}
             color="primary"
-            InputLabelProps={getLabelProps()}
+            InputLabelProps={{ ...getLabelProps() }}
             inputProps={getInputProps()}
-            startAdornment={
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            }
+            InputProps={{
+              ...getInputProps(),
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
           {!!(isOpen && symbols && symbols.length) && (
             <Paper className={classes.paper} square>
-              <List component="ul" dense className={classes.list} {...getMenuProps()}>
+              <List
+                component="ul"
+                dense
+                className={classes.list}
+                {...getMenuProps()}
+              >
                 {symbols.map((item, index) => (
                   <ListItem
                     button
@@ -144,4 +155,4 @@ const Autocomplete = ({ onSelect, label }) => {
   );
 };
 
-export default Autocomplete;
+export default SymbolSearchBox;
